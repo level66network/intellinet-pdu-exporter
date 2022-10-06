@@ -1,0 +1,6 @@
+# Ignore macOS files.
+**/.DS_Store
+**/*.icloud
+
+# Ignore python virtual environment.
+.venv

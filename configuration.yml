@@ -1,0 +1,10 @@
+---
+exporter:
+  address: 0.0.0.0
+  port: 9974
+  interval: 30
+logging:
+  filename: /var/tmp/prometheus-intellinet-pdu-exporter.log
+  level: ERROR
+pdus:
+  - 100.127.252.131
