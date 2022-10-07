@@ -82,6 +82,11 @@ if __name__ == "__main__":
         )
 
         # Define metrics.
+        intellinet_pdu_up = prometheus_client.Gauge(
+            'intellinet_pdu_up',
+            'Status',
+            labelnames = ['pdu']
+        )
         intellinet_pdu_cur0 = prometheus_client.Gauge(
             'intellinet_pdu_cur0',
             'Total Current',
@@ -105,6 +110,13 @@ if __name__ == "__main__":
 
         # Never stop updating the values from the devices.
         while True:
+            # Clear all metrics to .
+            intellinet_pdu_up.clear()
+            intellinet_pdu_cur0.clear()
+            intellinet_pdu_tempBan.clear()
+            intellinet_pdu_humBan.clear()
+            intellinet_pdu_outletStat.clear()
+
             # Iterate through PDUs.
             for pdu in config['pdus']:
                 try:
@@ -115,6 +127,7 @@ if __name__ == "__main__":
                         logging.info('Query of ' + pdu + ' was successfull and could be decoded.')
 
                         # Add metrics with label of PDU to exporter.
+                        intellinet_pdu_up.labels(pdu).set(1)
                         intellinet_pdu_cur0.labels(pdu).set(pdu_status['response']['cur0'])
                         intellinet_pdu_tempBan.labels(pdu).set(pdu_status['response']['tempBan'])
                         intellinet_pdu_humBan.labels(pdu).set(pdu_status['response']['humBan'])
@@ -128,9 +141,15 @@ if __name__ == "__main__":
                     else:
                         # In case HTTP code is not 200, add log message.
                         logging.error('Query of ' + pdu + ' failed with HTTP code: ' + pdu_status.status_code)
+
+                        # Add metric for state.
+                        intellinet_pdu_up.labels(pdu).set(0)
                 except requests.RequestException:
                     # If HTTP request times out/failes, add log message.
                     logging.error('Query of ' + pdu + ' failed.')
+
+                    # Add metric for state.
+                    intellinet_pdu_up.labels(pdu).set(0)
 
             # Wait interval.
             logging.info('Wait ' + str(config['exporter']['interval']) + 's until next query.')
