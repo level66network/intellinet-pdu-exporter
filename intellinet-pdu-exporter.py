@@ -120,7 +120,7 @@ if __name__ == "__main__":
             # Iterate through PDUs.
             for pdu in config['pdus']:
                 try:
-                    pdu_status = requests.get('http://' + pdu + '/status.xml', timeout=5)
+                    pdu_status = requests.get('http://' + pdu + '/status.xml', timeout=config['exporter']['timeout'])
                     if pdu_status.status_code == 200:
                         # HTTP code 200 looks like the query worked.
                         pdu_status = xmltodict.parse(pdu_status.content)
